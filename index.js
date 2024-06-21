@@ -4,21 +4,28 @@ import { UserRepository } from './user-repository.js'
 
 const app = express()
 app.use(express.json())
+app.set('view engine', 'ejs')
 
 app.get('/', (req, res) => {
-  res.send('Hello world')
+  res.render('example', { username: 'penudo1234' })
 })
 
-app.post('/login', (req, res) => {
-
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body
+  try {
+    const user = await UserRepository.login({ username, password })
+    res.send({ user })
+  } catch (error) {
+    res.status(401).send(error.message)
+  }
 })
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body
   console.log(req.body)
 
   try {
-    const id = UserRepository.create({ username, password })
+    const id = await UserRepository.create({ username, password })
     res.send({ id })
   } catch (error) {
     // normalmente no debemos mandar el mensaje del error
